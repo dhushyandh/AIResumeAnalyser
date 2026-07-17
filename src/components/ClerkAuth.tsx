@@ -98,12 +98,12 @@ export function ClerkAuthWrapper({ children, darkMode }: ClerkAuthWrapperProps) 
     return (
       <RealClerkProvider
         publishableKey={CLERK_PUBLISHABLE_KEY}
-        appearance={{
-          baseTheme: darkMode ? dark : undefined,
-          variables: {
-            colorPrimary: "#171717",
-          },
-        }}
+        // appearance={{
+        //   baseTheme: darkMode ? dark : undefined,
+        //   variables: {
+        //     colorPrimary: "#171717",
+        //   },
+        // }}
       >
         <CustomAuthContext.Provider
           value={{
