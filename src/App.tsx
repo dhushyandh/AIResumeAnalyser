@@ -24,6 +24,7 @@ import {
   LogIn,
   UploadCloud
 } from "lucide-react";
+import { Analytics } from "@vercel/analytics/react";
 
 // Components
 import ResumeUploader from "./components/ResumeUploader";
@@ -967,6 +968,7 @@ function AppContent({ darkMode, setDarkMode }: { darkMode: boolean; setDarkMode:
 
       </div>
     </footer>
+    <Analytics />
   </div>
   );
 }
