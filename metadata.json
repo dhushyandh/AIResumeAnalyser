@@ -1,0 +1,6 @@
+{
+  "name": "CVPilot",
+  "description": "AI-powered resume analyzer, keyword optimizer, cover letter generator, and career dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
