@@ -54,10 +54,10 @@ interface ClerkAuthWrapperProps {
 
 export function ClerkAuthWrapper({ children, darkMode }: ClerkAuthWrapperProps) {
   const [isSignedIn, setIsSignedIn] = useState(() => {
-    return localStorage.getItem("cvpilot_mock_signed_in") === "true";
+    return localStorage.getItem("cvpilot_auth_signed_in") === "true" || localStorage.getItem("cvpilot_mock_signed_in") === "true";
   });
   const [user, setUser] = useState<AuthUser | null>(() => {
-    const saved = localStorage.getItem("cvpilot_mock_user");
+    const saved = localStorage.getItem("cvpilot_auth_user") || localStorage.getItem("cvpilot_mock_user");
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -69,22 +69,30 @@ export function ClerkAuthWrapper({ children, darkMode }: ClerkAuthWrapperProps) 
   });
 
   const signIn = (email: string, first: string, last: string) => {
-    const mockUser: AuthUser = {
-      id: "user_mock_12345",
-      firstName: first || "Alex",
-      lastName: last || "Developer",
-      imageUrl: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80`,
-      emailAddress: email || "alex.dev@example.com",
+    const trimmedEmail = email.trim();
+    const fallbackName = trimmedEmail.split("@")[0] || "User";
+    const firstName = first.trim() || fallbackName;
+    const lastName = last.trim();
+    const userId = `usr_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 7)}`;
+
+    const sessionUser: AuthUser = {
+      id: userId,
+      firstName,
+      lastName,
+      imageUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(firstName + " " + lastName)}`,
+      emailAddress: trimmedEmail,
     };
-    setUser(mockUser);
+    setUser(sessionUser);
     setIsSignedIn(true);
-    localStorage.setItem("cvpilot_mock_signed_in", "true");
-    localStorage.setItem("cvpilot_mock_user", JSON.stringify(mockUser));
+    localStorage.setItem("cvpilot_auth_signed_in", "true");
+    localStorage.setItem("cvpilot_auth_user", JSON.stringify(sessionUser));
   };
 
   const signOut = () => {
     setUser(null);
     setIsSignedIn(false);
+    localStorage.removeItem("cvpilot_auth_signed_in");
+    localStorage.removeItem("cvpilot_auth_user");
     localStorage.removeItem("cvpilot_mock_signed_in");
     localStorage.removeItem("cvpilot_mock_user");
   };
@@ -180,7 +188,8 @@ export function SignInButton({ mode = "modal", children }: { mode?: "modal" | "r
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    signIn(email || "alex.dev@example.com", firstName || "Alex", lastName || "Developer");
+    if (!email.trim()) return;
+    signIn(email.trim(), firstName.trim(), lastName.trim());
     setShowModal(false);
   };
 
@@ -203,7 +212,7 @@ export function SignInButton({ mode = "modal", children }: { mode?: "modal" | "r
               </div>
               <h4 className="text-sm font-bold text-neutral-800 dark:text-neutral-200">Sign in to CVPilot</h4>
               <p className="text-[11px] text-neutral-400">
-                Use our sandbox login or configure Clerk in environment variables.
+                Authenticate your session to save analysis history, resumes, and cover letters.
               </p>
             </div>
 
@@ -229,7 +238,7 @@ export function SignInButton({ mode = "modal", children }: { mode?: "modal" | "r
                 <input
                   type="email"
                   required
-                  placeholder="alex.dev@example.com"
+                  placeholder="you@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full text-xs p-2.5 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-950 dark:focus:ring-white"
@@ -241,7 +250,7 @@ export function SignInButton({ mode = "modal", children }: { mode?: "modal" | "r
                   <label className="text-[10px] font-bold uppercase text-neutral-400">First Name</label>
                   <input
                     type="text"
-                    placeholder="Alex"
+                    placeholder="Your first name"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     className="w-full text-xs p-2.5 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none"
@@ -251,7 +260,7 @@ export function SignInButton({ mode = "modal", children }: { mode?: "modal" | "r
                   <label className="text-[10px] font-bold uppercase text-neutral-400">Last Name</label>
                   <input
                     type="text"
-                    placeholder="Developer"
+                    placeholder="Your last name"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     className="w-full text-xs p-2.5 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none"

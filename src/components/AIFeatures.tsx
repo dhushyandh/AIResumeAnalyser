@@ -474,7 +474,7 @@ export default function AIFeatures({
                     rows={4}
                     value={genPrompt}
                     onChange={(e) => setGenPrompt(e.target.value)}
-                    placeholder="e.g. I'm a final-year CSE student interested in AI, with experiences building natural language tools in Python.`"
+                    placeholder="Describe your career goals and background in any field (e.g. 'BSN Registered Nurse with 5 years in Emergency Care and patient triage seeking a Charge Nurse role' or 'Senior Financial Analyst with M&A valuation and GAAP accounting experience')..."
                     className="w-full text-xs p-3.5 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200/40 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-neutral-950 dark:focus:ring-white placeholder:text-neutral-400 dark:text-neutral-200 resize-none font-sans"
                   />
                 </div>

@@ -44,11 +44,13 @@ app.post("/api/analyze", async (req, res) => {
     }
 
     const jdPrompt = jobDescriptionText && jobDescriptionText.trim() !== ""
-      ? `Compare it against this Job Description:\n=== JOB DESCRIPTION ===\n${jobDescriptionText}\n========================`
-      : `Analyze the resume to extract optimal market keywords, standard engineering/business expectations, and provide overall feedback.`;
+      ? `Compare it against this target Job Description:\n=== JOB DESCRIPTION ===\n${jobDescriptionText}\n========================`
+      : `Benchmark the resume across its specific professional industry and domain (e.g. Healthcare, Technology, Finance, Marketing, Law, Education, Sales, Operations, Engineering, Design, Administration, or Executive Leadership). Extract industry-standard core competencies, keywords, and recruiter expectations for that specific field.`;
 
-    const prompt = `You are a professional HR director and ATS (Applicant Tracking System) expert.
-Analyze the following resume text and provide a highly detailed, objective score, analysis, keyword matching, skills gap analysis, portfolio advice, custom interview questions, and rewrite recommendations.
+    const prompt = `You are a universal senior talent acquisition director, executive recruiter, and ATS (Applicant Tracking System) intelligence expert spanning all professional fields and career disciplines.
+
+First, identify the candidate's exact profession, industry, specialization, and seniority level from the resume text.
+Next, perform an objective, rigorous, field-specific evaluation calibrated to real hiring manager expectations and modern ATS screening algorithms in their exact discipline.
 
 === RESUME TEXT ===
 ${resumeText}
@@ -56,7 +58,22 @@ ${resumeText}
 
 ${jdPrompt}
 
-Provide your feedback strictly in JSON format matching the specified schema. Ensure the score calculations are objective and realistic (e.g. standard resumes rarely get 100%).`;
+Evaluation Guidelines for All Industries:
+1. ATS Scoring (0-100%): Calibrated objectively based on:
+   - Field-specific hard/technical skills and certifications
+   - Quantified achievements, outcomes, and business/clinical/operational metrics
+   - Chronology, title progression, and section clarity
+   - ATS parsability (standard headers, clean layout, no keyword stuffing)
+2. Keywords & Skills Gap:
+   - Identify both foundational and advanced terminology, certifications, tools, methodologies, and core competencies relevant to the candidate's exact profession.
+3. High-Impact Action Items:
+   - Provide concrete, field-appropriate advice (e.g., for Healthcare: clinical rotations, patient census, charting systems, certifications; for Finance: financial modeling, GAAP/IFRS, audit experience, portfolio size; for Tech: architectures, languages, scale; for Sales: quota attainment, ARR, deal size; for Education: curriculum design, student outcomes, state certifications; for Law: bar admissions, litigation, matter management). Do not assume software/tech if the candidate is in another field!
+4. Tailored Interview Preparation:
+   - HR/Behavioral questions
+   - Core Specialty/Domain questions (specific to their actual field)
+   - Practical Scenario/Case questions (real scenarios they would face on the job).
+
+Provide your feedback strictly in JSON format matching the specified schema. Ensure the score calculations are objective and realistic (standard resumes rarely get 100%).`;
 
     const response = await ai.models.generateContent({
       model: "gemini-3.5-flash",
@@ -115,7 +132,7 @@ Provide your feedback strictly in JSON format matching the specified schema. Ens
             },
             feedback: {
               type: Type.ARRAY,
-              description: "Critical bulleted feedback on how to improve the resume (e.g., 'Achievements should include quantified metrics', 'No GitHub links').",
+              description: "Critical bulleted feedback on how to improve the resume tailored to their specific industry (e.g., 'Quantify impact with relevant metrics', 'Highlight state/board certifications and clinical/operational credentials').",
               items: { type: Type.STRING }
             },
             projectSuggestions: {
@@ -215,13 +232,13 @@ app.post("/api/achievement-generator", async (req, res) => {
       return res.status(400).json({ error: "Task or role description is required." });
     }
 
-    const prompt = `You are an expert resume writer. 
-Convert the following simple work description or task into 3 distinct, high-impact bullet points for a resume.
+    const prompt = `You are an expert resume writer and career coach across all industries. 
+Convert the following work description or task into 3 distinct, high-impact bullet points for a resume.
 Each bullet point MUST follow the STAR/XYZ formula: Accomplished [X] as measured by [Y], by doing [Z].
-Use active, powerful verbs and include quantified mock metrics (percentages, hour savings, user numbers) that sound realistic for the context.
+Use active, powerful verbs and include quantified metrics relevant to the context of their specific profession (e.g. revenue growth, patient outcomes, hours saved, audit success, error reductions, efficiency gains).
 
 Current Task: "${task}"
-Target Role Context: "${role || "General Developer / Professional"}"
+Target Role Context: "${role || "Professional in candidate's specified field"}"
 
 Provide your output strictly in JSON format matching this schema:
 {
@@ -272,16 +289,21 @@ app.post("/api/cover-letter", async (req, res) => {
       return res.status(400).json({ error: "Both Resume and Job Description are required to generate a cover letter." });
     }
 
-    const styleGuide = {
-      google: "Innovative, highly technical, focus on scale, collaboration, open-source, and solving hard-computational problems. Keep it structured and humble yet deeply competent.",
-      amazon: "Obsessive focus on customer-centricity, ownership, bias for action, deep dive, and high-velocity results. Embed leadership principles.",
-      microsoft: "Inclusive, growth mindset, technical excellence, enterprise impact, cloud-first alignment, and empowerment-oriented tone.",
-      startup: "Highly energetic, multi-functional, adaptive, proactive, focus on speed, rapid experimentation, building from scratch, and high ownership."
+    const styleGuide: Record<string, string> = {
+      formal: "Corporate & Formal: Structured, respectful, meticulous, emphasizing credentials, ethical standards, regulatory compliance, and a proven track record. Ideal for Finance, Healthcare, Legal, and Enterprise roles.",
+      executive: "Executive & Strategic: Focus on high-level leadership, vision, operational excellence, fiscal stewardship, and strategic ROI. Authoritative, dignified, and compelling.",
+      impact: "Results & Metrics-Driven: Direct, performance-oriented, highlighting quantifiable achievements, KPIs, problem-solving, and measurable value delivered.",
+      creative: "Engaging & Modern: Energetic, authentic, narrative-driven, showcasing passion, adaptability, client rapport, and creative vision. Ideal for Marketing, Design, Sales, and Innovation roles.",
+      // Legacy aliases for backward compatibility
+      google: "Innovative and structured, emphasizing analytical problem solving, scale, and cross-functional collaboration.",
+      amazon: "High-velocity, focused on ownership, customer outcomes, bias for action, and data-backed deliverables.",
+      microsoft: "Growth-mindset, collaborative excellence, enterprise impact, and continuous learning.",
+      startup: "Energetic, versatile, proactive, highlighting rapid execution and full-lifecycle ownership."
     };
 
-    const targetStyle = styleGuide[style as keyof typeof styleGuide] || styleGuide.startup;
+    const targetStyle = styleGuide[style as string] || styleGuide.formal;
 
-    const prompt = `You are an elite career coach. Write a customized, compelling, single-page cover letter applying for a role defined by the Job Description below, leveraging details from the user's Resume.
+    const prompt = `You are an elite career coach and executive resume consultant across all industries. Write a customized, compelling, single-page cover letter applying for a role defined by the Job Description below, leveraging genuine qualifications and achievements from the user's Resume.
 
 Style Directive: ${targetStyle}
 

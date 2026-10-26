@@ -3,7 +3,11 @@ import "dotenv/config";
 
 const { Pool } = pg;
 
-const databaseUrl = process.env.DATABASE_URL;
+const rawDatabaseUrl = process.env.DATABASE_URL;
+// Remove channel_binding parameter as node-postgres does not support SCRAM channel binding and drops connections (ECONNRESET)
+const databaseUrl = rawDatabaseUrl
+  ? rawDatabaseUrl.replace(/[?&]channel_binding=[^&]+/g, (match) => match.startsWith("?") ? "?" : "")
+  : rawDatabaseUrl;
 
 if (!databaseUrl) {
   console.warn("⚠️ DATABASE_URL is not set in environment. Database persistence will be disabled.");

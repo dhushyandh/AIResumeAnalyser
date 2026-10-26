@@ -24,9 +24,10 @@ import MetricCard from "./MetricCard";
 interface AnalysisDashboardProps {
   analysis: ResumeAnalysis;
   jobDescription?: string;
+  onNavigateTab?: (tab: "dashboard" | "compare" | "ai-features" | "cover-letter" | "history") => void;
 }
 
-export default function AnalysisDashboard({ analysis, jobDescription }: AnalysisDashboardProps) {
+export default function AnalysisDashboard({ analysis, jobDescription, onNavigateTab }: AnalysisDashboardProps) {
   const [activeTab, setActiveTab] = useState<"overview" | "keywords" | "rewrite" | "questions">("overview");
   
   // Custom interactive rewriter state
@@ -84,6 +85,42 @@ export default function AnalysisDashboard({ analysis, jobDescription }: Analysis
     <div className="space-y-8">
       {/* Metric Visual Card */}
       <MetricCard score={analysis.score} breakdown={analysis.breakdown} />
+
+      {/* Productive Next-Step Shortcuts */}
+      {onNavigateTab && (
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-emerald-500/10 border border-blue-500/20 dark:border-purple-500/20 rounded-2xl">
+          <div className="flex items-center gap-2 text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+            <Sparkles className="w-4 h-4 text-purple-500 animate-pulse" />
+            <span>Next Recommended Actions:</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => onNavigateTab("cover-letter")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xs transition-all text-neutral-700 dark:text-neutral-200 hover:scale-[1.02]"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-blue-500" />
+              <span>Draft Cover Letter</span>
+              <ArrowRight className="w-3 h-3 text-neutral-400" />
+            </button>
+            <button
+              onClick={() => onNavigateTab("ai-features")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xs transition-all text-neutral-700 dark:text-neutral-200 hover:scale-[1.02]"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+              <span>Tailor in AI Studio</span>
+              <ArrowRight className="w-3 h-3 text-neutral-400" />
+            </button>
+            <button
+              onClick={() => onNavigateTab("compare")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xs transition-all text-neutral-700 dark:text-neutral-200 hover:scale-[1.02]"
+            >
+              <Layers className="w-3.5 h-3.5 text-emerald-500" />
+              <span>A/B Compare Variations</span>
+              <ArrowRight className="w-3 h-3 text-neutral-400" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex border-b border-neutral-100 dark:border-neutral-800 scrollbar-none overflow-x-auto gap-4">

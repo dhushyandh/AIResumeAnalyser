@@ -12,7 +12,7 @@ interface CoverLetterGeneratorProps {
 
 export default function CoverLetterGenerator({ resumeText, jobDescriptionText, resumeId, jdId }: CoverLetterGeneratorProps) {
   const { isSignedIn, user } = useUser();
-  const [style, setStyle] = useState<"google" | "amazon" | "microsoft" | "startup">("startup");
+  const [style, setStyle] = useState<string>("formal");
   const [loading, setLoading] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [copied, setCopied] = useState(false);
@@ -90,10 +90,10 @@ export default function CoverLetterGenerator({ resumeText, jobDescriptionText, r
   };
 
   const styles = [
-    { id: "google", label: "Google style", desc: "Innovative & tech-oriented" },
-    { id: "amazon", label: "Amazon style", desc: "Customer obsessive & data-driven" },
-    { id: "microsoft", label: "Microsoft style", desc: "Growth-mindset & enterprise-focused" },
-    { id: "startup", label: "Startup style", desc: "High speed & intense ownership" }
+    { id: "formal", label: "Corporate & Formal", desc: "Structured, credible & compliance-friendly (Healthcare, Legal, Finance)" },
+    { id: "executive", label: "Executive & Leadership", desc: "High-level vision, ROI, governance & strategic stewardship" },
+    { id: "impact", label: "Results & Metrics-Driven", desc: "Focused on quantifiable KPIs, outcomes & problem-solving" },
+    { id: "creative", label: "Engaging & Modern", desc: "Dynamic storytelling, adaptability & innovation (Marketing, Sales, Design)" }
   ];
 
   const handleGenerate = async () => {
